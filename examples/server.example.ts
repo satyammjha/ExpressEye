@@ -1,9 +1,9 @@
 import express from "express";
-import { rateLimiterMiddleware } from "../middleware/middleware";
+import { requestProfilerMiddleware } from "../middleware/requestProfiler.middleware";
 
 const app = express();
 
-app.use(rateLimiterMiddleware({ windowMs: 60000, maxRequests: 5 }));
+app.use(requestProfilerMiddleware({ logTo: "console", threshold: 500 }));
 
 app.get("/", (req, res) => {
     res.send("Hello, world!");

@@ -1,36 +1,39 @@
-import { Request, Response, NextFunction } from 'express';
-interface RateLimiterOptions {
-    windowMs: number,
-    maxRequests: number
+import { Request, Response, NextFunction } from "express";
+
+interface ProfilerOptions {
+    logTo?: "console" | "file"; // Logging destination
+    threshold?: number; // Slow request threshold in ms
 }
 
-const rateLimitMap = new Map<string, { count: number, lastReset: number }>();
-
-
-export const rateLimiter = (options: RateLimiterOptions) => {
+export const requestProfiler = (options: ProfilerOptions = { logTo: "console", threshold: 500 }) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const ip = req.ip || "unknown";
-        const currentTime = Date.now();
+        const startTime = process.hrtime();
 
-        if (!rateLimitMap.has(ip)) {
-            rateLimitMap.set(ip, { count: 1, lastReset: currentTime });
-            return next();
-        }
+        res.on("finish", () => {
+            const [seconds, nanoseconds] = process.hrtime(startTime);
+            const durationMs = seconds * 1000 + nanoseconds / 1e6;
 
-        const userData = rateLimitMap.get(ip)!;
-        if (currentTime - userData.lastReset > options.windowMs) {
-            userData.count = 1;
-            userData.lastReset = currentTime;
-            return next();
-        }
+            const logEntry = {
+                method: req.method,
+                url: req.originalUrl,
+                status: res.statusCode,
+                duration: `${durationMs.toFixed(2)} ms`,
+                timestamp: new Date().toISOString(),
+            };
 
-        if (userData.count >= options.maxRequests) {
-            return res.status(429).json({ error: "Too many requests. Try again later." });
-        }
+            if (options.logTo === "console") {
+                if (durationMs > (options.threshold || 500)) {
+                    console.warn("[SLOW REQUEST]", logEntry);
+                } else {
+                    console.log("[REQUEST LOG]", logEntry);
+                }
+            }
 
-        userData.count++;
-        return next();
+            
+        });
+
+        next();
     };
 };
 
-export default rateLimiter;
+export default requestProfiler;

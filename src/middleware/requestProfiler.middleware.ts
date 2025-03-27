@@ -1,21 +1,38 @@
 import { Request, Response, NextFunction } from "express";
-import { promises as fs } from "fs";
-import path from "path";
+import { logRequest } from "../middleware/logger.middleware";
+import { sendLatencyAlert } from "../utils/emailAlert";
 
 interface ProfilerOptions {
   logTo?: "console" | "file";
   threshold?: number;
   filePath?: string;
   fileName?: string;
-  logLimit?: number; 
-  logWindowMs?: number; 
-  ignoreRoutes?: string[]; 
+  logLimit?: number;
+  logWindowMs?: number;
+  ignoreRoutes?: string[];
+  alertEmail?: string;
+  senderEmail?: string;
+  senderPassword?: string;
+  latencyThreshold?: number;
+  emailLimit?: number;
+  emailWindowMs?: number;
+  routesToMonitor?: string[];
 }
 
-const requestLogs = new Map<string, number[]>(); 
+const requestLogs = new Map<string, number[]>();
 
 export const requestProfilerMiddleware =
-  (options: ProfilerOptions = { logTo: "console", threshold: 500, logLimit: 10, logWindowMs: 60000, ignoreRoutes: [] }) =>
+  (options: ProfilerOptions = {
+    logTo: "console",
+    threshold: 500,
+    logLimit: 10,
+    logWindowMs: 60000,
+    ignoreRoutes: [],
+    latencyThreshold: 1000,
+    emailLimit: 5,
+    emailWindowMs: 600000,
+    routesToMonitor: []
+  }) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
       if (options.ignoreRoutes?.includes(req.originalUrl)) {
@@ -30,14 +47,12 @@ export const requestProfilerMiddleware =
       } else {
         requestLogs.set(ip, []);
       }
-      
 
       if (requestLogs.get(ip)!.length >= (options.logLimit || 10)) {
         return next();
       }
 
       requestLogs.get(ip)!.push(now);
-
       const startTime = process.hrtime();
 
       res.on("finish", async () => {
@@ -48,35 +63,17 @@ export const requestProfilerMiddleware =
           method: req.method,
           url: req.originalUrl,
           status: res.statusCode,
-          duration: `${durationMs.toFixed(2)} ms`,
+          durationMs,
           timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
         };
 
-        if (options.logTo === "console") {
-          if (durationMs > (options.threshold || 500)) {
-            console.warn("[SLOW REQUEST]", logEntry);
-          } else {
-            console.log("[REQUEST LOG]", logEntry);
-          }
-        }
+        await logRequest(logEntry, options);
 
-        if (options.logTo === "file") {
-          try {
-            const logDir = options.filePath || path.join(__dirname, "logs");
-            const logFile = options.fileName || "request.log";
-            const fullPath = path.join(logDir, logFile);
-            const fileLogEntry = JSON.stringify(logEntry) + "\n";
-
-            try {
-              await fs.access(logDir);
-            } catch {
-              await fs.mkdir(logDir, { recursive: true });
-            }
-
-            await fs.appendFile(fullPath, fileLogEntry);
-          } catch (err) {
-            console.error("Failed to log request:", err);
-          }
+        if (
+          durationMs > (options.latencyThreshold || 1000) &&
+          (options.routesToMonitor?.includes(req.originalUrl) || options.routesToMonitor?.length === 0)
+        ) {
+          await sendLatencyAlert(req, durationMs, options);
         }
       });
 

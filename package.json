@@ -13,16 +13,25 @@
     "prepare": "npm run build",
     "test": "jest"
   },
-  "keywords": ["express", "middleware", "request", "profiler", "performance", "logging"],
+  "keywords": [
+    "express",
+    "middleware",
+    "request",
+    "profiler",
+    "performance",
+    "logging"
+  ],
   "author": "Satyam Jha",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "nodemailer": "^6.10.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
+    "@types/nodemailer": "^6.4.17",
     "@types/supertest": "^6.0.2",
     "jest": "^29.7.0",
     "supertest": "^7.1.0",

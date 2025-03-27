@@ -22,7 +22,7 @@ describe("Request Profiler Middleware", () => {
         const consoleSpy = jest.spyOn(console, "log").mockImplementation();
         const res = await request(app).get("/");
         expect(res.status).toBe(200);
-        expect(consoleSpy).toHaveBeenCalled(); // Ensure logs are generated
+        expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();
     });
 

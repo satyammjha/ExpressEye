@@ -1,2 +1,25 @@
-node_modules
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+logs/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.npmrc
+coverage/
+tests/
+examples/

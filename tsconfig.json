@@ -5,8 +5,10 @@
     "target": "ES6",
     "strict": true,
     "rootDir": "./src",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "declaration": true
   },
   "include": ["src/**/*"],
-  "exclude": ["examples/**/*", "middleware/**/*", "tests/**/*"]
+  "exclude": ["examples/**/*", "tests/**/*"]
 }

@@ -1,0 +1,15 @@
+# Ignore unnecessary files
+node_modules/
+src/
+tests/
+examples/
+logs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+tsconfig.json
+.gitignore
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

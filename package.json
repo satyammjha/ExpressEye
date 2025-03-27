@@ -1,19 +1,21 @@
 {
   "name": "request-profiler",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/index.ts",
+  "description": "Express middleware to log request performance and analytics",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "example": "examples",
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest"
   },
-  "keywords": [],
+  "keywords": ["express", "middleware", "request", "profiler", "performance", "logging"],
   "author": "Satyam Jha",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2"

@@ -1,2 +1,2 @@
 export { requestProfilerMiddleware } from "./requestProfiler.middleware";
-export { logToFile } from "./logger.middleware";
+export { logRequest } from "../middleware/logger.middleware";

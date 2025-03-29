@@ -2,27 +2,22 @@
 
 ## Overview
 
-This is an Express.js middleware package that profiles incoming HTTP requests by tracking execution time, response size, and other metadata. It supports logging requests to the console or a file, setting logging limits, ignoring specific routes, and sending email alerts for slow requests.
+`express-request-profiler` is a lightweight middleware for Express.js that tracks and logs HTTP requests in real time. It provides insights into request execution time, response size, and other metadata. With configurable logging, alert mechanisms, and support for multiple storage backends, this middleware helps optimize performance monitoring.
 
 ## Features
 
-✅ **Request Profiling** – Logs request details such as method, URL, status, duration, and timestamp.
-
-✅ **Log to Console or File** – Choose between logging in the console or writing to a file.
-
-✅ **Ignore Specific Routes** – Exclude certain routes (e.g., `/health`) from being logged.
-
-✅ **Logging Limit** – Prevent excessive logging by setting a limit on stored request logs.
-
-✅ **Email Alerts for Slow Requests** – Send email notifications when multiple requests exceed the threshold time.
-
-✅ **Response Size Tracking** – Logs the size of responses in bytes for performance insights.
-
-✅ **Configurable Storage Backends** – Logs can be stored in JSON, databases, or external monitoring services.
-
-✅ **Customizable Alert System** – Set thresholds and receive alerts based on different conditions.
+- ✅ **Detailed Request Profiling** – Logs HTTP method, URL, status, execution time, and timestamp.
+- ✅ **Flexible Logging Options** – Output logs to the console or store them in a file.
+- ✅ **Ignore Specific Routes** – Exclude endpoints (e.g., `/health`) from logging.
+- ✅ **Logging Limit Control** – Prevent excessive log growth with configurable log storage limits.
+- ✅ **Email Alerts for Slow Requests** – Receive notifications when multiple requests exceed a specified response time.
+- ✅ **Response Size Tracking** – Logs response sizes for better performance insights.
+- ✅ **Configurable Storage Backends** – Store logs in JSON, databases, or external monitoring services.
+- ✅ **Customizable Alert System** – Define alert thresholds and notification settings based on request performance.
 
 ## Installation
+
+Install the package via npm or yarn:
 
 ```sh
 npm install express-request-profiler
@@ -36,7 +31,7 @@ yarn add express-request-profiler
 
 ## Usage
 
-### Basic Usage
+### Basic Setup
 
 ```typescript
 import express from "express";
@@ -44,20 +39,22 @@ import { requestProfilerMiddleware } from "express-request-profiler";
 
 const app = express();
 
-app.use(requestProfilerMiddleware({
-  logTo: "file",
-  threshold: 100, // Threshold in ms for slow requests
-  filePath: "./logs",
-  fileName: "requests.log",
-  ignoreRoutes: ["/health"],
-  logLimit: 1000, // Max log entries before old logs are removed
-  enableResponseSizeTracking: true, // Track response sizes
-  storageBackend: "json", // Options: 'json', 'database', 'monitoring-service'
-  alertConfig: {
-    threshold: 3, // Number of slow requests before an alert is triggered
-    notifyEmail: "admin@example.com",
-  }
-}));
+app.use(
+  requestProfilerMiddleware({
+    logTo: "file",
+    threshold: 100, // Requests exceeding 100ms are flagged as slow
+    filePath: "./logs",
+    fileName: "requests.log",
+    ignoreRoutes: ["/health"],
+    logLimit: 1000, // Max log entries before purging old logs
+    enableResponseSizeTracking: true,
+    storageBackend: "json", // Options: 'json', 'database', 'monitoring-service'
+    alertConfig: {
+      threshold: 3, // Alert triggered after 3 slow requests
+      notifyEmail: "admin@example.com",
+    },
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");
@@ -70,22 +67,22 @@ app.listen(3000, () => {
 
 ## Configuration Options
 
-| Option                     | Type     | Default       | Description |
-|---------------------------|---------|-------------|-------------|
-| `logTo`                   | string  | "console"   | Choose between `console` or `file` logging. |
-| `threshold`               | number  | 500         | Requests exceeding this time (ms) are considered slow. |
-| `filePath`                | string  | "./logs"    | Directory path for log files. |
-| `fileName`                | string  | "request.log" | Log file name. |
-| `ignoreRoutes`            | array   | `[]`        | Routes to be ignored from logging. |
-| `logLimit`                | number  | 1000        | Maximum log entries before purging older ones. |
-| `enableResponseSizeTracking` | boolean | false       | Enable response size tracking in logs. |
-| `storageBackend`          | string  | "json"      | Storage backend for logs (`json`, `database`, `monitoring-service`). |
-| `alertConfig.threshold`   | number  | 3           | Number of slow requests before triggering an alert. |
-| `alertConfig.notifyEmail` | string  | ""          | Email address for receiving alerts. |
+| Option                       | Type    | Default        | Description                                                          |
+| ---------------------------- | ------- | -------------- | -------------------------------------------------------------------- |
+| `logTo`                      | string  | "console"      | Determines the logging output (`console` or `file`).                 |
+| `threshold`                  | number  | 500            | Requests exceeding this time (ms) are considered slow.               |
+| `filePath`                   | string  | "./logs"       | Directory path for storing log files.                                |
+| `fileName`                   | string  | "requests.log" | Name of the log file.                                                |
+| `ignoreRoutes`               | array   | `[]`           | List of routes to be excluded from logging.                          |
+| `logLimit`                   | number  | 1000           | Maximum number of stored log entries before purging old logs.        |
+| `enableResponseSizeTracking` | boolean | false          | Enables logging of response sizes.                                   |
+| `storageBackend`             | string  | "json"         | Storage backend for logs (`json`, `database`, `monitoring-service`). |
+| `alertConfig.threshold`      | number  | 3              | Number of slow requests before triggering an alert.                  |
+| `alertConfig.notifyEmail`    | string  | ""             | Email address for alert notifications.                               |
 
 ## Logging Limit Implementation
 
-- Once the number of stored log entries exceeds `logLimit`, older logs are removed to prevent excessive log file growth.
+- When the number of stored log entries exceeds `logLimit`, older logs are automatically removed to prevent excessive file growth.
 
 ## Author
 
@@ -93,4 +90,4 @@ app.listen(3000, () => {
 
 ## License
 
-MIT License.
+This project is licensed under the **MIT License**.

@@ -14,6 +14,16 @@
     "prepublishOnly": "npm run build",
     "postinstall": "node --unhandled-rejections=strict dist/postinstall.js || exit 0"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./middleware": {
+      "import": "./dist/middleware/index.js",
+      "require": "./dist/middleware/index.cjs"
+    }
+  },
   "keywords": [
     "express",
     "middleware",

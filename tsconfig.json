@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "ES6",
     "strict": true,
     "rootDir": "./src",
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "declaration": true
+    "declaration": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
   "exclude": ["examples/**/*", "tests/**/*"]

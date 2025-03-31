@@ -1,2 +1,2 @@
-export { requestProfilerMiddleware } from "./requestProfiler.middleware";
-export { logRequest } from "../middleware/logger.middleware";
+export { requestProfilerMiddleware } from "./requestProfiler.middleware.js";
+export { logRequest } from "./logger.middleware.js";

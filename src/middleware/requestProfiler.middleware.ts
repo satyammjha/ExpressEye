@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { logRequest } from "../middleware/logger.middleware";
-import { sendLatencyAlert } from "../utils/emailAlert";
+import { logRequest } from "../middleware/logger.middleware.js";
+import { sendLatencyAlert } from "../utils/emailAlert.js";
 
 interface ProfilerOptions {
   logTo?: "console" | "file";

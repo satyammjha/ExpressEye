@@ -42,7 +42,7 @@ const password = process.env.EMAIL_APP_PASSWORD;
 
 app.use(requestProfilerMiddleware({
     logTo: "file",
-    filePath: "../logs",
+    filePath: "./logs",
     fileName: "requests.log",
     threshold: 300,
     logLimit: 20,

@@ -1,5 +1,6 @@
 import { Request } from "express";
-import { sendEmail } from "../service/notify.service";
+import { sendEmail } from "../service/notify.service.js";
+
 
 interface ProfilerOptions {
   alertEmail?: string;
@@ -34,7 +35,7 @@ export const sendLatencyAlert = async (req: Request, durationMs: number, options
         options.senderPassword!,
         options.alertEmail!,
         "🚨 High Latency Alert - Action Required",
-   
+
         `High Latency Alert
           ------------------
           Route: ${req.originalUrl}

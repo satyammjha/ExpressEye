@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import express, { Request, Response } from "express";
-import { requestProfilerMiddleware } from "../src/middleware/requestProfiler.middleware";
+import { requestProfilerMiddleware } from "../src/index.js";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 

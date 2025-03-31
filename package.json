@@ -1,6 +1,6 @@
 {
   "name": "expresseye",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Lightweight Express middleware for logging request performance, response time, and analytics.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

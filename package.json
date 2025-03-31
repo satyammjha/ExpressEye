@@ -12,7 +12,7 @@
     "build": "tsc",
     "test": "jest",
     "prepublishOnly": "npm run build",
-    "postinstall": "node dist/postinstall.js"
+    "postinstall": "node --unhandled-rejections=strict dist/postinstall.js || exit 0"
   },
   "keywords": [
     "express",
@@ -29,6 +29,10 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.10.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",

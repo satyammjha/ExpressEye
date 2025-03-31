@@ -1,7 +1,7 @@
 {
-  "name": "request-profiler",
+  "name": "expresseye",
   "version": "1.0.0",
-  "description": "Express middleware to log request performance and analytics",
+  "description": "Lightweight Express middleware for logging request performance, response time, and analytics.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
@@ -10,7 +10,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
     "test": "jest",
     "postinstall": "node src/postinstall.ts"
   },
@@ -20,11 +19,13 @@
     "request",
     "profiler",
     "performance",
-    "logging"
+    "logging",
+    "analytics"
   ],
-  "author": "Satyam Jha",
-  "license": "ISC",
+  "author": "Satyam Jha satyammjha0@gmail.com",
+  "license": "MIT License",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.10.0"
   },
@@ -35,6 +36,20 @@
     "@types/supertest": "^6.0.2",
     "jest": "^29.7.0",
     "supertest": "^7.1.0",
+    "ts-jest": "^29.3.0",
     "typescript": "^5.8.2"
-  }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.ts?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
+  },
+  "type": "module"
 }

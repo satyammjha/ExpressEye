@@ -10,7 +10,7 @@ interface ProfilerOptions {
 
 interface LogEntry {
   durationMs: number;
-  [key: string]: any; 
+  [key: string]: any;
 }
 
 export const logRequest = async (logEntry: LogEntry, options: ProfilerOptions) => {

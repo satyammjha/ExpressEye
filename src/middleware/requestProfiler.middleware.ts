@@ -10,6 +10,7 @@ interface ProfilerOptions {
   logLimit?: number;
   logWindowMs?: number;
   ignoreRoutes?: string[];
+  sendEmailAlert?: boolean;
   alertEmail?: string;
   senderEmail?: string;
   senderPassword?: string;
@@ -35,9 +36,9 @@ export const requestProfilerMiddleware =
   }) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-      if (options.ignoreRoutes?.includes(req.originalUrl)) {
+      if (options.ignoreRoutes?.some(route => route === req.originalUrl)) {
         return next();
-      }
+    }
 
       const ip = req.ip || req.connection.remoteAddress || "global";
       const now = Date.now();
@@ -55,7 +56,21 @@ export const requestProfilerMiddleware =
       requestLogs.get(ip)!.push(now);
       const startTime = process.hrtime();
 
+      let responseSize = 0;
+      const originalWrite = res.write;
+      const originalEnd = res.end;
+      res.write = function (chunk: any, ...args: any[]) {
+        responseSize += Buffer.byteLength(chunk);
+        return originalWrite.apply(res, [chunk, args[0] || "utf8", args[1]]);
+      };
+
+      res.end = function (chunk: any, ...args: any[]) {
+        if (chunk) responseSize += Buffer.byteLength(chunk);
+        return originalEnd.apply(res, [chunk, args[0] || "utf8", args[1]]);
+      };
+
       res.on("finish", async () => {
+
         const [seconds, nanoseconds] = process.hrtime(startTime);
         const durationMs = seconds * 1000 + nanoseconds / 1e6;
 
@@ -64,6 +79,7 @@ export const requestProfilerMiddleware =
           url: req.originalUrl,
           status: res.statusCode,
           durationMs,
+          responseSize,
           timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
         };
 
@@ -73,7 +89,13 @@ export const requestProfilerMiddleware =
           durationMs > (options.latencyThreshold || 1000) &&
           (options.routesToMonitor?.includes(req.originalUrl) || options.routesToMonitor?.length === 0)
         ) {
-          await sendLatencyAlert(req, durationMs, options);
+          if (
+            options.sendEmailAlert &&
+            durationMs > (options.latencyThreshold || 1000) &&
+            (options.routesToMonitor?.includes(req.originalUrl) || options.routesToMonitor?.length === 0)
+          ) {
+            await sendLatencyAlert(req, durationMs, options);
+          }
         }
       });
 

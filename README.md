@@ -1,93 +1,130 @@
-# Request Profiler Middleware for Express.js
+# expresseye - Express Request Profiler Middleware
 
-## Overview
+## 🚀 Overview
+expresseye is a lightweight Express middleware designed to monitor API request performance, log request details, and send email alerts for slow requests. This helps developers optimize their APIs by identifying slow endpoints and analyzing traffic patterns.
 
-`express-request-profiler` is a lightweight middleware for Express.js that tracks and logs HTTP requests in real time. It provides insights into request execution time, response size, and other metadata. With configurable logging, alert mechanisms, and support for multiple storage backends, this middleware helps optimize performance monitoring.
+## 📌 Features
+- ✅ **Request Logging** - Logs API request details (method, response time, response size, etc.).
+- ✅ **Custom Log Storage** - Log to console or files with configurable paths.
+- ✅ **Rate-Limited Logging** - Avoids excessive logging for spammy requests.
+- ✅ **Latency Alerts via Email** - Sends an email when a request takes too long.
+- ✅ **Selective Monitoring** - Choose which routes to monitor/ignore.
+- ✅ **Performance Optimization** - Identify slow endpoints and optimize them.
 
-## Features
+## 📚 Why Use `expresseye`?
+- 🔹 **Monitor API Performance** - Track slow endpoints & optimize request handling.
+- 🔹 **Automated Latency Alerts** - Get notified when API response time crosses a set threshold.
+- 🔹 **Efficient Logging** - Rate-limited logging prevents overwhelming the logs.
+- 🔹 **Plug & Play** - Simple integration into any Express project.
 
-- ✅ **Detailed Request Profiling** – Logs HTTP method, URL, status, execution time, and timestamp.
-- ✅ **Flexible Logging Options** – Output logs to the console or store them in a file.
-- ✅ **Ignore Specific Routes** – Exclude endpoints (e.g., `/health`) from logging.
-- ✅ **Logging Limit Control** – Prevent excessive log growth with configurable log storage limits.
-- ✅ **Email Alerts for Slow Requests** – Receive notifications when multiple requests exceed a specified response time.
-- ✅ **Response Size Tracking** – Logs response sizes for better performance insights.
-- ✅ **Configurable Storage Backends** – Store logs in JSON, databases, or external monitoring services.
-- ✅ **Customizable Alert System** – Define alert thresholds and notification settings based on request performance.
-
-## Installation
-
-Install the package via npm or yarn:
-
-```sh
-npm install express-request-profiler
+## 📝 Installation
+```bash
+npm install expresseye
+```
+or  
+```bash
+yarn add expresseye
 ```
 
-or
-
-```sh
-yarn add express-request-profiler
-```
-
-## Usage
-
-### Basic Setup
-
+## 🛠️ Usage (Basic Example)
+### Import & Use in Express
 ```typescript
-import express from "express";
-import { requestProfilerMiddleware } from "express-request-profiler";
+import dotenv from "dotenv";
+import path from "path";
+import express, { Request, Response } from "express";
+import { requestProfilerMiddleware } from "expresseye";
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
+const email = process.env.EMAIL_ADDRESS;
+const password = process.env.EMAIL_APP_PASSWORD;
 
-app.use(
-  requestProfilerMiddleware({
+app.use(requestProfilerMiddleware({
     logTo: "file",
-    threshold: 100, // Requests exceeding 100ms are flagged as slow
-    filePath: "./logs",
+    filePath: "../logs",
     fileName: "requests.log",
+    threshold: 300,
+    logLimit: 20,
+    logWindowMs: 60000,
     ignoreRoutes: ["/health"],
-    logLimit: 1000, // Max log entries before purging old logs
-    enableResponseSizeTracking: true,
-    storageBackend: "json", // Options: 'json', 'database', 'monitoring-service'
-    alertConfig: {
-      threshold: 3, // Alert triggered after 3 slow requests
-      notifyEmail: "admin@example.com",
-    },
-  })
-);
+    sendEmailAlert: false,
+    alertEmail: email,
+    senderEmail: email,
+    senderPassword: password,
+    latencyThreshold: 1,
+    emailLimit: 3,
+    emailWindowMs: 600000,
+    routesToMonitor: ["/"]
+}));
 
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).send("Hello World!");
 });
 
-app.listen(3000, () => {
-  console.log("Server running on http://localhost:3000");
+app.get("/health", (req: Request, res: Response) => {
+    res.status(200).send("OK");
 });
+
+app.listen(3000, () => console.log("Server running on port 3000"));
 ```
 
-## Configuration Options
+## ⚙️ Configuration Options
+Below are the configurable arguments with their default values and descriptions:
 
-| Option                       | Type    | Default        | Description                                                          |
-| ---------------------------- | ------- | -------------- | -------------------------------------------------------------------- |
-| `logTo`                      | string  | "console"      | Determines the logging output (`console` or `file`).                 |
-| `threshold`                  | number  | 500            | Requests exceeding this time (ms) are considered slow.               |
-| `filePath`                   | string  | "./logs"       | Directory path for storing log files.                                |
-| `fileName`                   | string  | "requests.log" | Name of the log file.                                                |
-| `ignoreRoutes`               | array   | `[]`           | List of routes to be excluded from logging.                          |
-| `logLimit`                   | number  | 1000           | Maximum number of stored log entries before purging old logs.        |
-| `enableResponseSizeTracking` | boolean | false          | Enables logging of response sizes.                                   |
-| `storageBackend`             | string  | "json"         | Storage backend for logs (`json`, `database`, `monitoring-service`). |
-| `alertConfig.threshold`      | number  | 3              | Number of slow requests before triggering an alert.                  |
-| `alertConfig.notifyEmail`    | string  | ""             | Email address for alert notifications.                               |
+| Option              | Type     | Default Value  | Description |
+|--------------------|---------|---------------|-------------|
+| `logTo`           | string  | `"console"`   | `"console"` or `"file"` (where to log requests). |
+| `filePath`        | string  | `""`          | Path for log files if `logTo` is `"file"`. |
+| `fileName`        | string  | `""`          | File name for log storage. |
+| `threshold`       | number  | `500`         | Minimum response time (ms) to log a request. |
+| `logLimit`        | number  | `10`          | Max logs per IP within `logWindowMs`. |
+| `logWindowMs`     | number  | `60000`       | Time window for log limit in ms. |
+| `ignoreRoutes`    | string[]| `[]`          | Routes to exclude from logging. |
+| `sendEmailAlert`  | boolean | `false`       | If `true`, sends email alerts for slow requests. |
+| `alertEmail`      | string  | `""`          | Email address to receive alerts. |
+| `senderEmail`     | string  | `""`          | Email address used to send alerts. |
+| `senderPassword`  | string  | `""`          | App password for sender email. |
+| `latencyThreshold`| number  | `1000`        | If request takes more than this (ms), an alert is triggered. |
+| `emailLimit`      | number  | `5`           | Max emails sent within `emailWindowMs`. |
+| `emailWindowMs`   | number  | `600000`      | Time window for email alerts in ms. |
+| `routesToMonitor` | string[]| `[]`          | Specific routes to monitor for slow responses. |
 
-## Logging Limit Implementation
+## 📩 Email Alerts Configuration
+- You can send **latency alerts** to:  
+  ✅ **Your own email** *(by setting `alertEmail` to your email).*  
+  ✅ **Another user’s email** *(by setting `alertEmail` to a different email).*  
 
-- When the number of stored log entries exceeds `logLimit`, older logs are automatically removed to prevent excessive file growth.
+### 🔑 How to Get an Email App Password?
+- You **need an app password** of your gmail account instead of your normal gmail password.  
+- **Follow this [video guide](https://youtu.be/_2TLKA4sPbk?si=gWBcqc_suHq5M3ho) to generate an app password.**  
 
-## Author
+### 👨‍💻 Environment Variables Setup
+Add the following to your `.env` file:
+```env
+EMAIL_ADDRESS=your.email@provider.com
+EMAIL_APP_PASSWORD=your-generated-app-password
+```
 
-[Satyam Jha](https://www.linkedin.com/en/satyammjha)
+## 📊 Example Scenarios
+| Scenario | Config | Expected Behavior |
+|----------|--------|------------------|
+| **Log all requests to a file** | `logTo: "file", filePath: "../logs"` | Requests get logged in `../logs/requests.log`. |
+| **Send email alerts when response time > 1s** | `latencyThreshold: 1000, sendEmailAlert: true` | If a request takes >1s, an email alert is sent. |
+| **Ignore `/health` route** | `ignoreRoutes: ["/health"]` | `/health` requests won't be logged. |
+| **Limit logging to 20 requests per IP in 1 min** | `logLimit: 20, logWindowMs: 60000` | Prevents spam logging from a single user. |
 
-## License
+## 🛠️ Common Issues & Debugging Tips
+- **Not receiving email alerts?**
+  - Check if `sendEmailAlert` is set to `true`.
+  - Make sure `alertEmail` and `senderEmail` are correctly configured.
+  - Ensure you’ve set up an **email app password** correctly.
+- **Logs are not being saved in a file?**
+  - Check if `logTo` is set to `"file"`.
+  - Ensure `filePath` and `fileName` are correctly set.
 
-This project is licensed under the **MIT License**.
+## 👨‍💻 Author
+This project is developed and maintained by **[Satyam Jha](https://www.linkedin.com/en/satyammjha)**.
+
+## 🐟 License
+This project is licensed under the **MIT License** and open for contributions!

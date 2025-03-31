@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "postinstall": "node src/postinstall.ts"
+    "postinstall": "node dist/postinstall.js"
+
   },
   "keywords": [
     "express",
